@@ -10,47 +10,103 @@
     width: 100%;
     padding: 40px 20px;
     box-sizing: border-box;
-    min-height: 100vh; 
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
-
-.section-1 {
-    background-color: #f0f8ff;
+.section-1, .section-2, .section-3{
+    min-height: 100vh;
+}
+.section-1{
+    background-color: black;
+}
+.section-2{
+    background-color: black;
+}
+.section-2 p{
+    color: white;
+}
+.section-1 h1 {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease, transform 1s ease;
 }
 
-.section-2 {
-    background-color: #ffe4c4;
+.section-1 h1.visible {
+    color: white;
+    opacity: 1;
+    transform: translateY(0);
+}
+.section-1 p{
+    color: white;
+}
+.section-2 button {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease, transform 1s ease;
 }
 
-.section-3 {
-    background-color: #d8bfd8; 
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
+.section-2 button.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section-3 img {
     width: 30%;
     height: auto;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.section-3 img.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-3 {
+    min-height: 100vh; 
+    background-color: black; 
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+.section-3 img.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section-4.footer {
-    background-color: #8fbc8f;
+    background-color: black; 
     color: white;
-    padding: 40px 20px;
+    padding: 30px 20px;
+    text-align: center;
+    margin-top: auto; 
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 5em;
     margin-bottom: 20px;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 1em;
-    margin-bottom: 20px;
+    padding: 30px 60px;
+    font-size: 1.2em;
+    background-color: #8082ee;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.5s ease, transform 0.s ease;
+    margin: 0 auto;
+    display: block;
+}
+
+button:hover {
+    background-color: #e61919;
+    transform: scale(1.5);
 }
 
 p {
