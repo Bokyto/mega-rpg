@@ -26,12 +26,12 @@
     display: block;
     padding: 14px 10px;
     text-decoration: double;
-    color: black;
+    color: rgb(255, 251, 251);
     font-size: 25px;
     font-family: 'Montserrat', sans-serif;
     transition: color 0.5s ease;
 }
 
 .navbar a:hover {
-    color: #9b9b9b;
+    color: #717171;
 }
