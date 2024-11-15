@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./MainPage.css";
+import Footer from "../footer/Footer";
 
-const MainPage = () => {
+const MainPage: React.FC = () => {
   const section1Ref = useRef<HTMLDivElement>(null);
   const section2Ref = useRef<HTMLDivElement>(null);
   const section3Ref = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showFooter, setShowFooter] = useState(false);
+  const [isScrollingUp, setIsScrollingUp] = useState(false);
 
   useEffect(() => {
     const options = {
       root: null,
       rootMargin: "0px",
-      threshold: 0.5, // Анимация срабатывает, когда элемент на 50% виден
+      threshold: 0.5,
     };
 
     const handleIntersect = (
@@ -54,31 +57,29 @@ const MainPage = () => {
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
 
-      const sensitivity = 50; // Уменьшаем чувствительность прокрутки
+      const sensitivity = 50;
 
       if (event.deltaY > sensitivity) {
-        // Прокрутка вниз (следующий слайд)
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3); // Здесь 4 - количество секций
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3);
+        setIsScrollingUp(false);
       } else if (event.deltaY < -sensitivity) {
-        // Прокрутка вверх (предыдущий слайд)
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3); // Здесь 4 - количество секций
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3);
+        setIsScrollingUp(true);
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowDown") {
-        // Стрелка вниз (следующий слайд)
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3); // Здесь 4 - количество секций
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3); 
+        setIsScrollingUp(false);
       } else if (event.key === "ArrowUp") {
-        // Стрелка вверх (предыдущий слайд)
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3); // Здесь 4 - количество секций
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3);
+        setIsScrollingUp(true);
       }
     };
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      // Отменить событие по умолчанию
       event.preventDefault();
-      // Chrome требует установки свойства returnValue
       event.returnValue = '';
       setCurrentIndex(0);
     };
@@ -90,10 +91,8 @@ const MainPage = () => {
       window.addEventListener('beforeunload', handleBeforeUnload);
     }
 
-    // Блокируем прокрутку страницы
     document.body.style.overflow = 'hidden';
 
-    // Фиксируем позицию прокрутки в самом верху
     window.scrollTo(0, 0);
 
     return () => {
@@ -103,7 +102,6 @@ const MainPage = () => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
       }
 
-      // Возвращаем прокрутку страницы
       document.body.style.overflow = 'auto';
     };
   }, []);
@@ -111,27 +109,64 @@ const MainPage = () => {
   useEffect(() => {
     const sliderElement = sliderRef.current;
     if (sliderElement) {
-      sliderElement.style.transition = 'transform 0.5s ease-in-out'; // Плавная анимация
+      sliderElement.style.transition = 'transform 1s ease-in-out';
       sliderElement.style.transform = `translateY(-${currentIndex * 100}vh)`;
     }
   }, [currentIndex]);
 
+  useEffect(() => {
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setShowFooter(true);
+        } else {
+          setShowFooter(false);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.5,
+    });
+
+    if (section3Ref.current) {
+      footerObserver.observe(section3Ref.current);
+    }
+
+    return () => {
+      footerObserver.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isScrollingUp) {
+      setShowFooter(false);
+    }
+  }, [isScrollingUp]);
+
   return (
-    <div className="mainpage" ref={sliderRef}>
-      <div className="section section-1" ref={section1Ref}>
-        <h1 className="slide-up">Akvelon RPG</h1>
-        <p>Вау, это круто! Давай заходи!</p>
+    <div className="slider-container">
+      <div className="slider" ref={sliderRef}>
+        <div className="slide section-1" ref={section1Ref}>
+          <h1 className="slide-up">Akvelon RPG</h1>
+          <p>Вау, это круто! Давай заходи!</p>
+        </div>
+        <div className="slide section-2" ref={section2Ref}>
+          <button className="btn">
+            <svg width="360px" height="120px" viewBox="0 0 360 120" className="border">
+              <polyline points="359,1 359,119 1,119 1,1 359,1" className="bg-line" />
+              <polyline points="359,1 359,119 1,119 1,1 359,1" className="hl-line" />
+            </svg>
+            <span>START GAME</span>
+          </button>
+          <p>Присоединяйся к нашему сообществу!</p>
+        </div>
+        <div className="slide section-3" ref={section3Ref}>
+          <h1>Погрузись  в пучину анального угнетения вместе с Аквелон</h1>
+          <p>Вас ждут кары ножной простаты, ненависть к сусликам, растяжение катаракты пальца и шизофрения подмышки</p>
+        </div>
       </div>
-      <div className="section section-2" ref={section2Ref}>
-        <button className="slide-up">Начать игру</button>
-        <p>Присоединяйся к нашему сообществу!</p>
-      </div>
-      <div className="section section-3" ref={section3Ref}>
-        <img src="/images/1.jpg" alt="Placeholder 1" className="slide-up" />
-        <img src="/images/2.jpg" alt="Placeholder 2" className="slide-up" />
-        <img src="/images/3.jpg" alt="Placeholder 3" className="slide-up" />
-      </div>
-      
+      <Footer show={showFooter} />
     </div>
   );
 };
