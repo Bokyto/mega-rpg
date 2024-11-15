@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./MainPage.css";
 
 const MainPage = () => {
   const section1Ref = useRef<HTMLDivElement>(null);
   const section2Ref = useRef<HTMLDivElement>(null);
   const section3Ref = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const options = {
@@ -20,22 +22,9 @@ const MainPage = () => {
       entries.forEach((entry) => {
         const target = entry.target;
         if (entry.isIntersecting) {
-          if (target.tagName === "H1") {
-            target.classList.add("visible");
-          } else if (target.tagName === "BUTTON") {
-            target.classList.add("visible");
-          } else if (target.tagName === "IMG") {
-            target.classList.add("visible");
-          }
+          target.classList.add("visible");
         } else {
-          // Удаляем класс visible, чтобы анимация могла сработать при следующем появлении
-          if (target.tagName === "H1") {
-            target.classList.remove("visible");
-          } else if (target.tagName === "BUTTON") {
-            target.classList.remove("visible");
-          } else if (target.tagName === "IMG") {
-            target.classList.remove("visible");
-          }
+          target.classList.remove("visible");
         }
       });
     };
@@ -61,27 +50,88 @@ const MainPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      const sensitivity = 50; // Уменьшаем чувствительность прокрутки
+
+      if (event.deltaY > sensitivity) {
+        // Прокрутка вниз (следующий слайд)
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3); // Здесь 4 - количество секций
+      } else if (event.deltaY < -sensitivity) {
+        // Прокрутка вверх (предыдущий слайд)
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3); // Здесь 4 - количество секций
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowDown") {
+        // Стрелка вниз (следующий слайд)
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % 3); // Здесь 4 - количество секций
+      } else if (event.key === "ArrowUp") {
+        // Стрелка вверх (предыдущий слайд)
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + 3) % 3); // Здесь 4 - количество секций
+      }
+    };
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Отменить событие по умолчанию
+      event.preventDefault();
+      // Chrome требует установки свойства returnValue
+      event.returnValue = '';
+      setCurrentIndex(0);
+    };
+
+    const sliderElement = sliderRef.current;
+    if (sliderElement) {
+      sliderElement.addEventListener('wheel', handleWheel, { passive: false });
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    // Блокируем прокрутку страницы
+    document.body.style.overflow = 'hidden';
+
+    // Фиксируем позицию прокрутки в самом верху
+    window.scrollTo(0, 0);
+
+    return () => {
+      if (sliderElement) {
+        sliderElement.removeEventListener('wheel', handleWheel);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      }
+
+      // Возвращаем прокрутку страницы
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
+  useEffect(() => {
+    const sliderElement = sliderRef.current;
+    if (sliderElement) {
+      sliderElement.style.transition = 'transform 0.5s ease-in-out'; // Плавная анимация
+      sliderElement.style.transform = `translateY(-${currentIndex * 100}vh)`;
+    }
+  }, [currentIndex]);
+
   return (
-    <div className="mainpage">
+    <div className="mainpage" ref={sliderRef}>
       <div className="section section-1" ref={section1Ref}>
-        <h1>Akvelon RPG</h1>
+        <h1 className="slide-up">Akvelon RPG</h1>
         <p>Вау, это круто! Давай заходи!</p>
       </div>
       <div className="section section-2" ref={section2Ref}>
-        <button>Начать игру</button>
+        <button className="slide-up">Начать игру</button>
         <p>Присоединяйся к нашему сообществу!</p>
       </div>
       <div className="section section-3" ref={section3Ref}>
-        <img src="/images/1.jpg" alt="Placeholder 1" />
-        <img src="/images/2.jpg" alt="Placeholder 2" />
-        <img src="/images/3.jpg" alt="Placeholder 3" />
-        {/* <img src="/images/4.jpg" alt="Placeholder 4" /> */}
+        <img src="/images/1.jpg" alt="Placeholder 1" className="slide-up" />
+        <img src="/images/2.jpg" alt="Placeholder 2" className="slide-up" />
+        <img src="/images/3.jpg" alt="Placeholder 3" className="slide-up" />
       </div>
-      <div className="section section-4 footer">
-        <p>Контактная информация:</p>
-        <p>Email: info@akvelonrpg.com</p>
-        <p>Телефон: +123 456 789</p>
-      </div>
+      
     </div>
   );
 };
